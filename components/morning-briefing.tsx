@@ -1,57 +1,11 @@
 import Link from "next/link";
 import { TODAY_ISO, type Company } from "@/data/mock-data";
-import {
-  buildMorningBriefing,
-  selectTopPriorities,
-  type BriefingItem,
-  type BriefingPillar,
-} from "@/lib/morning-briefing";
-import { TargetIcon, ActivityIcon, ScaleIcon, SparklesIcon, ChevronRightIcon, SunriseIcon } from "./icons";
+import { buildMorningBriefing, selectTopPriorities, type BriefingItem } from "@/lib/morning-briefing";
+import { PillarBadge } from "./pillar-badge";
+import { AgentActivityFeed } from "./agent-activity-feed";
+import { ChevronRightIcon, SunriseIcon } from "./icons";
 
 const DISPLAYED_PRIORITY_COUNT = 8;
-
-const pillarMeta: Record<
-  BriefingPillar,
-  { label: string; icon: typeof TargetIcon; className: string }
-> = {
-  nba: {
-    label: "Next Best Action",
-    icon: TargetIcon,
-    className:
-      "bg-orange-50 text-orange-700 ring-orange-600/20 dark:bg-orange-500/10 dark:text-orange-400 dark:ring-orange-500/20",
-  },
-  health: {
-    label: "Health Score",
-    icon: ActivityIcon,
-    className:
-      "bg-red-50 text-red-700 ring-red-600/20 dark:bg-red-500/10 dark:text-red-400 dark:ring-red-500/20",
-  },
-  competitive: {
-    label: "Competitive Intel",
-    icon: ScaleIcon,
-    className:
-      "bg-violet-50 text-violet-700 ring-violet-600/20 dark:bg-violet-500/10 dark:text-violet-400 dark:ring-violet-500/20",
-  },
-  enrichment: {
-    label: "Auto Enrich",
-    icon: SparklesIcon,
-    className:
-      "bg-sky-50 text-sky-700 ring-sky-600/20 dark:bg-sky-500/10 dark:text-sky-400 dark:ring-sky-500/20",
-  },
-};
-
-function PillarBadge({ pillar }: { pillar: BriefingPillar }) {
-  const meta = pillarMeta[pillar];
-  const Icon = meta.icon;
-  return (
-    <span
-      className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold whitespace-nowrap ring-1 ring-inset ${meta.className}`}
-    >
-      <Icon className="h-3 w-3" />
-      {meta.label}
-    </span>
-  );
-}
 
 function FlagBadge({ flag }: { flag: string }) {
   return (
@@ -100,7 +54,7 @@ export function MorningBriefing({ companies }: { companies: Company[] }) {
   const items = selectTopPriorities(allItems, DISPLAYED_PRIORITY_COUNT);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
       <div className="mb-6 flex items-start gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-100 text-orange-600 dark:bg-orange-500/15 dark:text-orange-400">
           <SunriseIcon className="h-5 w-5" />
@@ -114,17 +68,25 @@ export function MorningBriefing({ companies }: { companies: Company[] }) {
         </div>
       </div>
 
-      {items.length === 0 ? (
-        <div className="rounded-xl border border-zinc-200 bg-white px-4 py-10 text-center text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
-          Nothing urgent today &mdash; your portfolio is in good shape.
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          {items.length === 0 ? (
+            <div className="rounded-xl border border-zinc-200 bg-white px-4 py-10 text-center text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
+              Nothing urgent today &mdash; your portfolio is in good shape.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {items.map((item) => (
+                <PriorityCard key={item.id} item={item} />
+              ))}
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="space-y-3">
-          {items.map((item) => (
-            <PriorityCard key={item.id} item={item} />
-          ))}
+
+        <div className="lg:col-span-1">
+          <AgentActivityFeed companies={companies} />
         </div>
-      )}
+      </div>
     </div>
   );
 }

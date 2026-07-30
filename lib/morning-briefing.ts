@@ -33,9 +33,11 @@ export interface BriefingItem {
 }
 
 const NBA_CANDIDATE_LIMIT = 5;
-const HEALTH_SCORE_AT_RISK_THRESHOLD = 50;
-const RENEWAL_SOON_DAYS = 90;
-const DATA_QUALITY_CRITICAL_THRESHOLD = 40;
+// Exported so other pillar-adjacent views (e.g. lib/agent-activity.ts) reuse
+// the exact same "at risk" / "critical" semantics instead of redefining them.
+export const HEALTH_SCORE_AT_RISK_THRESHOLD = 50;
+export const RENEWAL_SOON_DAYS = 90;
+export const DATA_QUALITY_CRITICAL_THRESHOLD = 40;
 
 function healthScoreOf(company: Company, today: string): number {
   return computeHealthScore({
