@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, type ComponentType } from "react";
+import { useEffect, useMemo, type ComponentType } from "react";
 import { moduleById, type Company } from "@/data/mock-data";
+import { computeNextBestAction, type NextBestAction } from "@/lib/nba";
 import {
   XIcon,
   MapPinIcon,
@@ -10,6 +11,7 @@ import {
   TagIcon,
   CalendarClockIcon,
   LayersIcon,
+  TargetIcon,
 } from "./icons";
 import {
   ModulePillList,
@@ -19,6 +21,38 @@ import {
   TeamSplitBar,
 } from "./badges";
 import { HealthScoreIndicator } from "./health-score-indicator";
+
+function NextBestActionCard({ nba }: { nba: NextBestAction }) {
+  const hasAction = nba.moduleId !== null;
+  return (
+    <div
+      className={
+        hasAction
+          ? "rounded-lg border border-orange-200 bg-orange-50/60 p-4 dark:border-orange-500/20 dark:bg-orange-500/10"
+          : "rounded-lg border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-800/50"
+      }
+    >
+      <div
+        className={`mb-2 flex items-center gap-1.5 text-xs font-semibold ${
+          hasAction
+            ? "text-orange-700 dark:text-orange-400"
+            : "text-zinc-500 dark:text-zinc-400"
+        }`}
+      >
+        <TargetIcon className="h-3.5 w-3.5" />
+        Next Best Action
+      </div>
+      {hasAction && (
+        <span className="mb-2 inline-flex items-center rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-700 ring-1 ring-inset ring-orange-600/20 dark:bg-orange-500/15 dark:text-orange-300 dark:ring-orange-500/25">
+          Pitch: {nba.moduleName}
+        </span>
+      )}
+      <p className="mt-2 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+        {nba.explanation}
+      </p>
+    </div>
+  );
+}
 
 function formatDate(iso: string): string {
   return new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-GB", {
@@ -73,6 +107,7 @@ export function CompanyDetailPanel({
 
   const activeNames = company.activeModuleIds.map((id) => moduleById.get(id)!.name);
   const missingNames = company.missingModuleIds.map((id) => moduleById.get(id)!.name);
+  const nba = useMemo(() => computeNextBestAction(company), [company]);
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
@@ -120,6 +155,8 @@ export function CompanyDetailPanel({
               </div>
             </div>
           </div>
+
+          <NextBestActionCard nba={nba} />
 
           <div className="grid grid-cols-2 gap-4">
             <HealthScoreIndicator company={company} variant="full" />
