@@ -62,9 +62,9 @@ export function IsoBadge({ certified }: { certified: boolean }) {
   );
 }
 
-type ScoreStatus = "good" | "warning" | "critical";
+export type ScoreStatus = "good" | "warning" | "critical";
 
-function scoreStatus(score: number): ScoreStatus {
+export function scoreStatus(score: number): ScoreStatus {
   if (score >= 70) return "good";
   if (score >= 40) return "warning";
   return "critical";
@@ -96,6 +96,21 @@ export function CompactMeter({ score }: { score: number }) {
       <span className={`text-xs font-semibold tabular-nums ${statusText[status]}`}>
         {score}
       </span>
+    </div>
+  );
+}
+
+/** Data quality meter for table rows, flagging the accounts enrichment would help most. */
+export function DataQualityBadge({ score }: { score: number }) {
+  const status = scoreStatus(score);
+  return (
+    <div className="flex items-center gap-2">
+      <CompactMeter score={score} />
+      {status === "critical" && (
+        <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap text-red-700 ring-1 ring-inset ring-red-600/20 dark:bg-red-500/10 dark:text-red-400 dark:ring-red-500/20">
+          Needs enrichment
+        </span>
+      )}
     </div>
   );
 }

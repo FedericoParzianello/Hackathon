@@ -21,6 +21,7 @@ import {
   TeamSplitBar,
 } from "./badges";
 import { HealthScoreIndicator } from "./health-score-indicator";
+import { EnrichmentCard } from "./enrichment-card";
 
 function NextBestActionCard({ nba }: { nba: NextBestAction }) {
   const hasAction = nba.moduleId !== null;
@@ -162,6 +163,8 @@ export function CompanyDetailPanel({
             <HealthScoreIndicator company={company} variant="full" />
             <ScoreMeter label="Data quality" score={company.dataQualityScore} />
           </div>
+
+          <EnrichmentCard company={company} key={company.id} />
 
           <div className="grid grid-cols-2 gap-3">
             <StatTile

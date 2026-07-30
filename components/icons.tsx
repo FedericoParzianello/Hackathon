@@ -168,3 +168,20 @@ export function TargetIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+export function SparklesIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3l1.4 4.2L17.5 8.6 13.4 10 12 14.2 10.6 10 6.5 8.6 10.6 7.2 12 3z" />
+      <path d="M19 14l.8 2.4L22.2 17.2 19.8 18l-.8 2.4-.8-2.4L15.8 17.2l2.4-.8.8-2.4z" />
+    </svg>
+  );
+}
+
+export function LoaderIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+      <path d="M12 3a9 9 0 106.36 2.64" />
+    </svg>
+  );
+}

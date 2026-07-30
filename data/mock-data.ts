@@ -2,6 +2,7 @@
 // Everything below is fake, deterministic sample data for demo purposes.
 
 import { computeHealthScore } from "@/lib/health-score";
+import { hashString, createRng } from "@/lib/seeded-random";
 
 // ---------------------------------------------------------------------------
 // Modules
@@ -252,26 +253,6 @@ const europeanCities = [
   "Hamburg, Germany",
   "Gdańsk, Poland",
 ];
-
-function hashString(value: string): number {
-  let h = 2166136261;
-  for (let i = 0; i < value.length; i++) {
-    h ^= value.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return h >>> 0;
-}
-
-/** Small seeded PRNG (mulberry32) so each company gets stable-but-varied values. */
-function createRng(seed: number): () => number {
-  let state = seed;
-  return function next() {
-    state = (state + 0x6d2b79f5) | 0;
-    let t = Math.imul(state ^ (state >>> 15), 1 | state);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 function addDaysISO(baseIso: string, days: number): string {
   const date = new Date(`${baseIso}T00:00:00Z`);

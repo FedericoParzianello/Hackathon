@@ -8,7 +8,7 @@ import {
   type ModuleId,
 } from "@/data/mock-data";
 import { SearchIcon, MapPinIcon, ChevronRightIcon } from "./icons";
-import { ModulePillList, IsoBadge } from "./badges";
+import { ModulePillList, IsoBadge, DataQualityBadge } from "./badges";
 import { HealthScoreIndicator } from "./health-score-indicator";
 import { CompanyDetailPanel } from "./company-detail-panel";
 
@@ -189,7 +189,7 @@ export function CompaniesExplorer({ companies }: { companies: Company[] }) {
 
       <div className="overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1100px] border-collapse text-left text-sm">
+          <table className="w-full min-w-[1250px] border-collapse text-left text-sm">
             <thead>
               <tr className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/60">
                 <th className={thClass}>Company</th>
@@ -198,6 +198,7 @@ export function CompaniesExplorer({ companies }: { companies: Company[] }) {
                 <th className={thClass}>Employees</th>
                 <th className={thClass}>ISO</th>
                 <th className={thClass}>Health</th>
+                <th className={thClass}>Data quality</th>
                 <th className={thClass}>Active modules</th>
                 <th className={thClass}>Missing modules</th>
                 <th className={thClass}>
@@ -232,6 +233,9 @@ export function CompaniesExplorer({ companies }: { companies: Company[] }) {
                   </td>
                   <td className="px-4 py-3">
                     <HealthScoreIndicator company={company} variant="compact" />
+                  </td>
+                  <td className="px-4 py-3">
+                    <DataQualityBadge score={company.dataQualityScore} />
                   </td>
                   <td className="px-4 py-3">
                     <ModulePillList
