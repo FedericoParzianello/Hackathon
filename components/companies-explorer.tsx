@@ -8,7 +8,8 @@ import {
   type ModuleId,
 } from "@/data/mock-data";
 import { SearchIcon, MapPinIcon, ChevronRightIcon } from "./icons";
-import { ModulePillList, IsoBadge, CompactMeter } from "./badges";
+import { ModulePillList, IsoBadge } from "./badges";
+import { HealthScoreIndicator } from "./health-score-indicator";
 import { CompanyDetailPanel } from "./company-detail-panel";
 
 type ModuleFilter = "all" | ModuleId;
@@ -230,7 +231,7 @@ export function CompaniesExplorer({ companies }: { companies: Company[] }) {
                     <IsoBadge certified={company.isoCertified} />
                   </td>
                   <td className="px-4 py-3">
-                    <CompactMeter score={company.healthScore} />
+                    <HealthScoreIndicator company={company} variant="compact" />
                   </td>
                   <td className="px-4 py-3">
                     <ModulePillList

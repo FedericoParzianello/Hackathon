@@ -1,6 +1,8 @@
 // Mock data for TermoFlow — CRM for HVAC and electrical install/maintenance companies.
 // Everything below is fake, deterministic sample data for demo purposes.
 
+import { computeHealthScore } from "@/lib/health-score";
+
 // ---------------------------------------------------------------------------
 // Modules
 // ---------------------------------------------------------------------------
@@ -203,7 +205,7 @@ function computeEstimatedARR(company: RawCompany): number {
 // data is stable across runs/builds without hand-authoring 30 rows of values.
 // ---------------------------------------------------------------------------
 
-const TODAY_ISO = "2026-07-30";
+export const TODAY_ISO = "2026-07-30";
 
 const brandCatalog = [
   "ThermoNova",
@@ -323,10 +325,18 @@ function computeDemoProfile(raw: RawCompany, index: number): DemoProfile {
   const digitalMaturity: DigitalMaturity = (["Low", "Medium", "High"] as const)[
     nextInt(0, 2)
   ];
-  const healthScore = nextInt(15, 97);
   const renewalDate = addDaysISO(TODAY_ISO, nextInt(30, 420));
   const dataQualityScore = nextInt(20, 100);
   const lastContactDate = addDaysISO(TODAY_ISO, -nextInt(1, 180));
+  const { score: healthScore } = computeHealthScore({
+    isoCertified,
+    digitalMaturity,
+    avgResponseTimeHours,
+    dataQualityScore,
+    lastContactDate,
+    renewalDate,
+    today: TODAY_ISO,
+  });
 
   return {
     brands,

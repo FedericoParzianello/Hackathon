@@ -18,6 +18,7 @@ import {
   DigitalMaturityBadge,
   TeamSplitBar,
 } from "./badges";
+import { HealthScoreIndicator } from "./health-score-indicator";
 
 function formatDate(iso: string): string {
   return new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-GB", {
@@ -121,7 +122,7 @@ export function CompanyDetailPanel({
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <ScoreMeter label="Account health" score={company.healthScore} />
+            <HealthScoreIndicator company={company} variant="full" />
             <ScoreMeter label="Data quality" score={company.dataQualityScore} />
           </div>
 
