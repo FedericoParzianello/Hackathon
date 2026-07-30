@@ -168,3 +168,13 @@ export function TargetIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+export function ScaleIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3v13M8 21h8" />
+      <path d="M4 7h16" />
+      <path d="M4 7l-3 6a3 3 0 006 0L4 7zM20 7l-3 6a3 3 0 006 0L20 7z" />
+    </svg>
+  );
+}
