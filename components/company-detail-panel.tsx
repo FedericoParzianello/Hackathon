@@ -22,8 +22,9 @@ import {
 } from "./badges";
 import { HealthScoreIndicator } from "./health-score-indicator";
 import { EnrichmentCard } from "./enrichment-card";
+import { OutreachDraftPanel } from "./outreach-draft";
 
-function NextBestActionCard({ nba }: { nba: NextBestAction }) {
+function NextBestActionCard({ company, nba }: { company: Company; nba: NextBestAction }) {
   const hasAction = nba.moduleId !== null;
   return (
     <div
@@ -51,6 +52,7 @@ function NextBestActionCard({ nba }: { nba: NextBestAction }) {
       <p className="mt-2 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
         {nba.explanation}
       </p>
+      {hasAction && <OutreachDraftPanel company={company} nba={nba} />}
     </div>
   );
 }
@@ -161,7 +163,7 @@ export function CompanyDetailPanel({
             </div>
           </div>
 
-          <NextBestActionCard nba={nba} />
+          <NextBestActionCard company={company} nba={nba} />
 
           <div className="grid grid-cols-2 gap-4">
             <HealthScoreIndicator company={company} variant="full" />
