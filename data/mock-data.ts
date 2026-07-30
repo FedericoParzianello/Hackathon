@@ -154,11 +154,26 @@ const rawCompanies: RawCompany[] = [
   { id: "ridgeline-boiler", name: "Ridgeline Boiler Services", subSector: "Boilers", employeeCount: 12, repId: "rep-5", activeModuleIds: ["quotes-invoicing"] },
 ];
 
+export type DigitalMaturity = "Low" | "Medium" | "High";
+
 export interface Company extends RawCompany {
   missingModuleIds: ModuleId[];
   estimatedARR: number;
   repName: string;
   repTerritory: string;
+  brands: string[];
+  city: string;
+  technicianCount: number;
+  officeStaffCount: number;
+  isoCertified: boolean;
+  yearsInBusiness: number;
+  fleetSize: number;
+  avgResponseTimeHours: number;
+  digitalMaturity: DigitalMaturity;
+  healthScore: number;
+  renewalDate: string;
+  dataQualityScore: number;
+  lastContactDate: string;
 }
 
 /** Rough share of employees who work as field techs (drives per-user pricing). */
@@ -181,7 +196,156 @@ function computeEstimatedARR(company: RawCompany): number {
   return Math.round(monthlyTotal * 12);
 }
 
-export const companies: Company[] = rawCompanies.map((raw) => {
+// ---------------------------------------------------------------------------
+// Demo profile fields (technicians, fleet, health, etc.)
+//
+// Deterministic pseudo-random generation seeded by company id, so the seed
+// data is stable across runs/builds without hand-authoring 30 rows of values.
+// ---------------------------------------------------------------------------
+
+const TODAY_ISO = "2026-07-30";
+
+const brandCatalog = [
+  "ThermoNova",
+  "VoltEdge",
+  "HeatCraft",
+  "PowerLine Systems",
+  "ClimaTech",
+  "Amperion",
+  "FlameGuard",
+  "CircuitMax",
+  "AeroTherm",
+  "WattForge",
+];
+
+const europeanCities = [
+  "Milan, Italy",
+  "Barcelona, Spain",
+  "Lyon, France",
+  "Rotterdam, Netherlands",
+  "Munich, Germany",
+  "Kraków, Poland",
+  "Porto, Portugal",
+  "Gothenburg, Sweden",
+  "Antwerp, Belgium",
+  "Zurich, Switzerland",
+  "Vienna, Austria",
+  "Bratislava, Slovakia",
+  "Turin, Italy",
+  "Valencia, Spain",
+  "Lille, France",
+  "Eindhoven, Netherlands",
+  "Stuttgart, Germany",
+  "Wrocław, Poland",
+  "Lisbon, Portugal",
+  "Malmö, Sweden",
+  "Ghent, Belgium",
+  "Geneva, Switzerland",
+  "Graz, Austria",
+  "Brno, Czech Republic",
+  "Bologna, Italy",
+  "Seville, Spain",
+  "Marseille, France",
+  "Utrecht, Netherlands",
+  "Hamburg, Germany",
+  "Gdańsk, Poland",
+];
+
+function hashString(value: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < value.length; i++) {
+    h ^= value.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+/** Small seeded PRNG (mulberry32) so each company gets stable-but-varied values. */
+function createRng(seed: number): () => number {
+  let state = seed;
+  return function next() {
+    state = (state + 0x6d2b79f5) | 0;
+    let t = Math.imul(state ^ (state >>> 15), 1 | state);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function addDaysISO(baseIso: string, days: number): string {
+  const date = new Date(`${baseIso}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+interface DemoProfile {
+  brands: string[];
+  city: string;
+  technicianCount: number;
+  officeStaffCount: number;
+  isoCertified: boolean;
+  yearsInBusiness: number;
+  fleetSize: number;
+  avgResponseTimeHours: number;
+  digitalMaturity: DigitalMaturity;
+  healthScore: number;
+  renewalDate: string;
+  dataQualityScore: number;
+  lastContactDate: string;
+}
+
+function computeDemoProfile(raw: RawCompany, index: number): DemoProfile {
+  const rng = createRng(hashString(raw.id));
+  const nextInt = (min: number, max: number) =>
+    min + Math.floor(rng() * (max - min + 1));
+  const nextFloat = (min: number, max: number, decimals = 1) => {
+    const value = min + rng() * (max - min);
+    const factor = 10 ** decimals;
+    return Math.round(value * factor) / factor;
+  };
+
+  const brandCount = nextInt(1, 5);
+  const shuffledBrands = [...brandCatalog].sort(() => rng() - 0.5);
+  const brands = shuffledBrands.slice(0, brandCount);
+
+  const city = europeanCities[index % europeanCities.length];
+
+  const technicianShare = nextFloat(0.7, 0.85, 2);
+  const technicianCount = Math.max(
+    1,
+    Math.round(raw.employeeCount * technicianShare),
+  );
+  const officeStaffCount = Math.max(0, raw.employeeCount - technicianCount);
+
+  const isoCertified = rng() < 0.45;
+  const yearsInBusiness = nextInt(3, 45);
+  const fleetSize = Math.max(1, Math.round(technicianCount / nextFloat(2, 4, 1)));
+  const avgResponseTimeHours = nextFloat(1.5, 36, 1);
+  const digitalMaturity: DigitalMaturity = (["Low", "Medium", "High"] as const)[
+    nextInt(0, 2)
+  ];
+  const healthScore = nextInt(15, 97);
+  const renewalDate = addDaysISO(TODAY_ISO, nextInt(30, 420));
+  const dataQualityScore = nextInt(20, 100);
+  const lastContactDate = addDaysISO(TODAY_ISO, -nextInt(1, 180));
+
+  return {
+    brands,
+    city,
+    technicianCount,
+    officeStaffCount,
+    isoCertified,
+    yearsInBusiness,
+    fleetSize,
+    avgResponseTimeHours,
+    digitalMaturity,
+    healthScore,
+    renewalDate,
+    dataQualityScore,
+    lastContactDate,
+  };
+}
+
+export const companies: Company[] = rawCompanies.map((raw, index) => {
   const rep = salesRepById.get(raw.repId)!;
   return {
     ...raw,
@@ -189,6 +353,7 @@ export const companies: Company[] = rawCompanies.map((raw) => {
     estimatedARR: computeEstimatedARR(raw),
     repName: rep.name,
     repTerritory: rep.territory,
+    ...computeDemoProfile(raw, index),
   };
 });
 
