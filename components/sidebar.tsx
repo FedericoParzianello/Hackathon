@@ -6,7 +6,7 @@ import {
   BuildingIcon,
   ScaleIcon,
   MegaphoneIcon,
-  CalendarIcon,
+  SunriseIcon,
   BarChartIcon,
 } from "./icons";
 import type { ComponentType } from "react";
@@ -19,9 +19,9 @@ interface NavItem {
 
 export const navItems: NavItem[] = [
   { label: "Companies", icon: BuildingIcon, href: "/" },
+  { label: "Morning Briefing", icon: SunriseIcon, href: "/morning-briefing" },
   { label: "Market", icon: ScaleIcon, href: "/market" },
   { label: "Campaigns", icon: MegaphoneIcon },
-  { label: "My Week", icon: CalendarIcon },
   { label: "Reports", icon: BarChartIcon },
 ];
 

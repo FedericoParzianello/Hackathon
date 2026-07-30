@@ -186,6 +186,23 @@ export function LoaderIcon({ className }: IconProps) {
   );
 }
 
+export function ActivityIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 12h4l2.5-7L13 19l2.5-7H21" />
+    </svg>
+  );
+}
+
+export function SunriseIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 18h18M5.5 18a6.5 6.5 0 0113 0" />
+      <path d="M12 4v3M4.5 9.5l1.8 1.8M19.5 9.5l-1.8 1.8" />
+    </svg>
+  );
+}
+
 export function ScaleIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">

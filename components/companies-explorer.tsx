@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   moduleById,
   modules,
@@ -43,12 +44,15 @@ function matchesLocation(company: Company, locationFilter: string): boolean {
 }
 
 export function CompaniesExplorer({ companies }: { companies: Company[] }) {
+  const searchParams = useSearchParams();
   const [companyList, setCompanyList] = useState(companies);
   const [query, setQuery] = useState("");
   const [activeModuleFilter, setActiveModuleFilter] = useState<ModuleFilter>("all");
   const [missingModuleFilter, setMissingModuleFilter] = useState<ModuleFilter>("all");
   const [locationFilter, setLocationFilter] = useState("all");
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(
+    () => searchParams.get("company"),
+  );
 
   function updateCompany(companyId: string, patch: Partial<Company>) {
     setCompanyList((prev) =>
