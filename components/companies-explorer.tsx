@@ -43,15 +43,22 @@ function matchesLocation(company: Company, locationFilter: string): boolean {
 }
 
 export function CompaniesExplorer({ companies }: { companies: Company[] }) {
+  const [companyList, setCompanyList] = useState(companies);
   const [query, setQuery] = useState("");
   const [activeModuleFilter, setActiveModuleFilter] = useState<ModuleFilter>("all");
   const [missingModuleFilter, setMissingModuleFilter] = useState<ModuleFilter>("all");
   const [locationFilter, setLocationFilter] = useState("all");
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
 
+  function updateCompany(companyId: string, patch: Partial<Company>) {
+    setCompanyList((prev) =>
+      prev.map((c) => (c.id === companyId ? { ...c, ...patch } : c)),
+    );
+  }
+
   const locationGroups = useMemo(() => {
     const byCountry = new Map<string, Set<string>>();
-    for (const company of companies) {
+    for (const company of companyList) {
       const { city, country } = parseCity(company.city);
       if (!byCountry.has(country)) byCountry.set(country, new Set());
       byCountry.get(country)!.add(city);
@@ -62,11 +69,11 @@ export function CompaniesExplorer({ companies }: { companies: Company[] }) {
         country,
         cities: Array.from(cities).sort(),
       }));
-  }, [companies]);
+  }, [companyList]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return companies.filter((company) => {
+    return companyList.filter((company) => {
       if (q && !company.name.toLowerCase().includes(q)) return false;
       if (
         activeModuleFilter !== "all" &&
@@ -81,11 +88,11 @@ export function CompaniesExplorer({ companies }: { companies: Company[] }) {
       if (!matchesLocation(company, locationFilter)) return false;
       return true;
     });
-  }, [companies, query, activeModuleFilter, missingModuleFilter, locationFilter]);
+  }, [companyList, query, activeModuleFilter, missingModuleFilter, locationFilter]);
 
   const selectedCompany = useMemo(
-    () => companies.find((c) => c.id === selectedCompanyId) ?? null,
-    [companies, selectedCompanyId],
+    () => companyList.find((c) => c.id === selectedCompanyId) ?? null,
+    [companyList, selectedCompanyId],
   );
 
   const hasActiveFilters =
@@ -113,8 +120,8 @@ export function CompaniesExplorer({ companies }: { companies: Company[] }) {
               {filtered.length}
             </span>{" "}
             companies shown
-            {filtered.length !== companies.length && (
-              <span> out of {companies.length} total</span>
+            {filtered.length !== companyList.length && (
+              <span> out of {companyList.length} total</span>
             )}
           </p>
         </div>
@@ -267,7 +274,9 @@ export function CompaniesExplorer({ companies }: { companies: Company[] }) {
       {selectedCompany && (
         <CompanyDetailPanel
           company={selectedCompany}
+          allCompanies={companyList}
           onClose={() => setSelectedCompanyId(null)}
+          onUpdateCompany={updateCompany}
         />
       )}
     </div>

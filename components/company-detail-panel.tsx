@@ -93,10 +93,14 @@ function StatTile({
 
 export function CompanyDetailPanel({
   company,
+  allCompanies,
   onClose,
+  onUpdateCompany,
 }: {
   company: Company;
+  allCompanies: Company[];
   onClose: () => void;
+  onUpdateCompany: (companyId: string, patch: Partial<Company>) => void;
 }) {
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -164,7 +168,12 @@ export function CompanyDetailPanel({
             <ScoreMeter label="Data quality" score={company.dataQualityScore} />
           </div>
 
-          <EnrichmentCard company={company} key={company.id} />
+          <EnrichmentCard
+            company={company}
+            allCompanies={allCompanies}
+            onApply={(patch) => onUpdateCompany(company.id, patch)}
+            key={company.id}
+          />
 
           <div className="grid grid-cols-2 gap-3">
             <StatTile

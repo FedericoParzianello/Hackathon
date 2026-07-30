@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { TODAY_ISO, type Company } from "@/data/mock-data";
-import { generateEnrichmentSuggestions, type EnrichmentSuggestion } from "@/lib/enrichment";
+import {
+  generateEnrichmentSuggestions,
+  applyEnrichmentSuggestion,
+  type EnrichmentSuggestion,
+} from "@/lib/enrichment";
 import { SparklesIcon, LoaderIcon, CheckCircleIcon, XIcon } from "./icons";
 
 type SuggestionStatus = "pending" | "accepted" | "dismissed";
@@ -54,7 +58,7 @@ function SuggestionRow({
         {suggestion.detail}
       </p>
       <div className="mt-2 text-[11px] text-zinc-500 dark:text-zinc-500">
-        Source: {suggestion.source} &middot; Detected {formatDate(suggestion.detectedDate)}
+        Source: {suggestion.source} &middot; Analyzed {formatDate(suggestion.analyzedDate)}
       </div>
       <div className="mt-2">
         {status === "pending" && (
@@ -80,7 +84,7 @@ function SuggestionRow({
         {status === "accepted" && (
           <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700 dark:text-emerald-400">
             <CheckCircleIcon className="h-3.5 w-3.5" />
-            Accepted
+            Accepted &middot; record updated
           </span>
         )}
         {status === "dismissed" && (
@@ -94,7 +98,15 @@ function SuggestionRow({
   );
 }
 
-export function EnrichmentCard({ company }: { company: Company }) {
+export function EnrichmentCard({
+  company,
+  allCompanies,
+  onApply,
+}: {
+  company: Company;
+  allCompanies: Company[];
+  onApply: (patch: Partial<Company>) => void;
+}) {
   const [stage, setStage] = useState<Stage>("idle");
   const [suggestions, setSuggestions] = useState<EnrichmentSuggestion[]>([]);
   const [statuses, setStatuses] = useState<Record<string, SuggestionStatus>>({});
@@ -102,13 +114,18 @@ export function EnrichmentCard({ company }: { company: Company }) {
   function runEnrichment() {
     setStage("loading");
     window.setTimeout(() => {
-      const results = generateEnrichmentSuggestions(company, TODAY_ISO);
+      const results = generateEnrichmentSuggestions(company, allCompanies, TODAY_ISO);
       setSuggestions(results);
       setStatuses(
         Object.fromEntries(results.map((s) => [s.id, "pending" as SuggestionStatus])),
       );
       setStage("ready");
     }, 900);
+  }
+
+  function acceptSuggestion(suggestion: EnrichmentSuggestion) {
+    setStatuses((prev) => ({ ...prev, [suggestion.id]: "accepted" }));
+    onApply(applyEnrichmentSuggestion(suggestion));
   }
 
   return (
@@ -132,14 +149,15 @@ export function EnrichmentCard({ company }: { company: Company }) {
 
       {stage === "idle" && (
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          Scan public sources for updates to this account&apos;s data.
+          Compare this account against patterns across your other accounts to flag data that
+          looks outdated or incomplete.
         </p>
       )}
 
       {stage === "loading" && (
         <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
           <LoaderIcon className="h-4 w-4 animate-spin" />
-          Scanning public sources&hellip;
+          Analyzing CRM patterns&hellip;
         </div>
       )}
 
@@ -147,7 +165,7 @@ export function EnrichmentCard({ company }: { company: Company }) {
         <div className="space-y-2">
           {suggestions.length === 0 && (
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              No updates found for this account.
+              This account matches typical patterns — no anomalies found.
             </p>
           )}
           {suggestions.map((s) => (
@@ -155,7 +173,7 @@ export function EnrichmentCard({ company }: { company: Company }) {
               key={s.id}
               suggestion={s}
               status={statuses[s.id] ?? "pending"}
-              onAccept={() => setStatuses((prev) => ({ ...prev, [s.id]: "accepted" }))}
+              onAccept={() => acceptSuggestion(s)}
               onDismiss={() => setStatuses((prev) => ({ ...prev, [s.id]: "dismissed" }))}
             />
           ))}

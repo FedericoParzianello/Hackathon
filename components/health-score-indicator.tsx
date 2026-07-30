@@ -56,6 +56,23 @@ export function HealthScoreIndicator({
   });
   const status = scoreStatus(score);
 
+  const previousScoreRef = useRef(score);
+  const [justUpdated, setJustUpdated] = useState(false);
+
+  useEffect(() => {
+    if (previousScoreRef.current === score) return;
+    previousScoreRef.current = score;
+    setJustUpdated(true);
+    const timeout = window.setTimeout(() => setJustUpdated(false), 2000);
+    return () => window.clearTimeout(timeout);
+  }, [score]);
+
+  const updatedBadge = justUpdated && (
+    <span className="inline-flex animate-pulse items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold whitespace-nowrap text-emerald-700 ring-1 ring-inset ring-emerald-600/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20">
+      Updated
+    </span>
+  );
+
   useEffect(() => {
     if (!open) return;
     function handlePointerDown(event: MouseEvent) {
@@ -143,7 +160,10 @@ export function HealthScoreIndicator({
         >
           <div className="mb-1 flex items-center justify-between text-xs">
             <span className="text-zinc-500 dark:text-zinc-400">Account health</span>
-            <span className={`font-semibold tabular-nums ${textColor[status]}`}>{score}</span>
+            <span className="flex items-center gap-1.5">
+              {updatedBadge}
+              <span className={`font-semibold tabular-nums ${textColor[status]}`}>{score}</span>
+            </span>
           </div>
           <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
             <div
@@ -173,6 +193,7 @@ export function HealthScoreIndicator({
           />
         </span>
         <span className={`text-xs font-semibold tabular-nums ${textColor[status]}`}>{score}</span>
+        {updatedBadge}
       </button>
       {popover}
     </>
