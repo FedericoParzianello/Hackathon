@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Sidebar } from "@/components/sidebar";
 import { Header } from "@/components/header";
+import { AgentActivityProvider } from "@/components/agent-activity-context";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -30,13 +31,15 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex h-full min-h-full flex-col bg-zinc-50 dark:bg-zinc-950">
-        <div className="flex h-full flex-1 overflow-hidden">
-          <Sidebar />
-          <div className="flex flex-1 flex-col overflow-hidden">
-            <Header />
-            <main className="flex-1 overflow-y-auto">{children}</main>
+        <AgentActivityProvider>
+          <div className="flex h-full flex-1 overflow-hidden">
+            <Sidebar />
+            <div className="flex flex-1 flex-col overflow-hidden">
+              <Header />
+              <main className="flex-1 overflow-y-auto">{children}</main>
+            </div>
           </div>
-        </div>
+        </AgentActivityProvider>
       </body>
     </html>
   );

@@ -212,6 +212,23 @@ export function MailIcon({ className }: IconProps) {
   );
 }
 
+export function PhoneIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 4.5h4l1.5 4-2 1.5a11 11 0 006 6l1.5-2 4 1.5v4a1.5 1.5 0 01-1.6 1.5A16.5 16.5 0 013 6.1 1.5 1.5 0 014 4.5z" />
+    </svg>
+  );
+}
+
+export function AlertTriangleIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3.5l9.5 16.5H2.5L12 3.5z" />
+      <path d="M12 10v4M12 17.2v.2" />
+    </svg>
+  );
+}
+
 export function SunriseIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">

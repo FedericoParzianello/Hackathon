@@ -23,6 +23,7 @@ import {
 import { HealthScoreIndicator } from "./health-score-indicator";
 import { EnrichmentCard } from "./enrichment-card";
 import { OutreachDraftPanel } from "./outreach-draft";
+import { CallNotePanel } from "./call-note";
 
 function NextBestActionCard({ company, nba }: { company: Company; nba: NextBestAction }) {
   const hasAction = nba.moduleId !== null;
@@ -162,6 +163,8 @@ export function CompanyDetailPanel({
               </div>
             </div>
           </div>
+
+          <CallNotePanel company={company} onUpdateCompany={onUpdateCompany} />
 
           <NextBestActionCard company={company} nba={nba} />
 

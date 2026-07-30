@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { TODAY_ISO, type Company } from "@/data/mock-data";
 import { buildAgentActivity } from "@/lib/agent-activity";
 import { pillarMeta } from "./pillar-badge";
+import { useAgentActivity } from "./agent-activity-context";
 
 function formatMinutesAgo(minutes: number): string {
+  if (minutes <= 0) return "just now";
   if (minutes < 60) return `${minutes}m ago`;
   const hours = Math.floor(minutes / 60);
   const rest = minutes % 60;
@@ -13,7 +15,9 @@ function formatMinutesAgo(minutes: number): string {
 }
 
 export function AgentActivityFeed({ companies }: { companies: Company[] }) {
-  const runs = buildAgentActivity(companies, TODAY_ISO);
+  const { liveEvents } = useAgentActivity();
+  const scheduledRuns = buildAgentActivity(companies, TODAY_ISO);
+  const runs = [...liveEvents, ...scheduledRuns].sort((a, b) => a.minutesAgo - b.minutesAgo);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
