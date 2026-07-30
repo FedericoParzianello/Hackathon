@@ -88,6 +88,102 @@ export const moduleById: Map<ModuleId, Module> = new Map(
 );
 
 // ---------------------------------------------------------------------------
+// Competitors
+// ---------------------------------------------------------------------------
+
+export type PricingPosition = "cheaper" | "similar" | "premium";
+
+export interface Competitor {
+  id: string;
+  name: string;
+  pricingPosition: PricingPosition;
+  strengths: string[];
+  weaknesses: string[];
+  strongModuleIds: ModuleId[];
+  /** 1-2 sentence guidance for how to win a deal against this competitor. */
+  howToWin: string;
+}
+
+export const competitors: Competitor[] = [
+  {
+    id: "fieldpoint-suite",
+    name: "FieldPoint Suite",
+    pricingPosition: "premium",
+    strengths: [
+      "Deep BI and custom reporting for large, multi-site operations",
+      "Mature accounting/ERP integrations (SAP, NetSuite)",
+      "Well-reviewed mobile app for large field crews",
+    ],
+    weaknesses: [
+      "6+ week implementation with a heavy onboarding services fee",
+      "Scheduled maintenance workflows feel bolted-on, not purpose-built",
+      "Pricing scales poorly below ~50 employees",
+    ],
+    strongModuleIds: ["field-tech-app", "business-intelligence"],
+    howToWin:
+      "Lead with speed and price: TermoFlow is live in days, not the 6+ weeks FieldPoint's onboarding takes, and doesn't punish small crews with enterprise pricing.",
+  },
+  {
+    id: "servicegrid",
+    name: "ServiceGrid",
+    pricingPosition: "similar",
+    strengths: [
+      "Strong dispatch/scheduling UX, popular with mid-size crews",
+      "Large contractor community and third-party plugin marketplace",
+      "Responsive customer support with regional account managers",
+    ],
+    weaknesses: [
+      "No native AI features on the roadmap",
+      "Invoicing is a thin pass-through, not a real billing module",
+      "Poor support for multi-brand or multi-location accounts",
+    ],
+    strongModuleIds: ["job-management", "scheduled-maintenance"],
+    howToWin:
+      "Show the AI Voice Agent and native invoicing live — ServiceGrid has no AI roadmap and treats billing as an afterthought, so a side-by-side demo closes the gap fast.",
+  },
+  {
+    id: "heatops-cloud",
+    name: "HeatOps Cloud",
+    pricingPosition: "cheaper",
+    strengths: [
+      "Lowest entry price in the category, self-serve signup",
+      "Very fast to set up for a single-location shop",
+      "Simple, easy-to-learn interface for non-technical office staff",
+    ],
+    weaknesses: [
+      "No field technician mobile app",
+      "Breaks down past ~20 technicians — no real multi-crew support",
+      "Reporting is a fixed set of canned exports, nothing configurable",
+    ],
+    strongModuleIds: ["quotes-invoicing", "parts-inventory"],
+    howToWin:
+      "Don't compete on entry price — win on growth: HeatOps breaks down past ~20 techs and has no field app, so target crews that are scaling and need real reporting.",
+  },
+  {
+    id: "maintainiq",
+    name: "MaintainIQ",
+    pricingPosition: "premium",
+    strengths: [
+      "Heavily marketed AI voice and invoicing features",
+      "Modern, polished UI that demos well",
+      "Fast-growing brand awareness from conference sponsorships",
+    ],
+    weaknesses: [
+      "AI features are widely reported as unreliable / still in beta",
+      "Per-seat pricing gets expensive fast for larger crews",
+      "Parts inventory module is minimal, with no supplier integrations",
+    ],
+    strongModuleIds: ["ai-voice-agent", "ai-invoice-agent"],
+    howToWin:
+      "Point to reliability over marketing: MaintainIQ's AI features are widely reported as unstable and their per-seat pricing balloons — win with a live AI Voice Agent demo and a clear cost comparison.",
+  },
+];
+
+export const competitorById: Map<string, Competitor> = new Map(
+  competitors.map((c) => [c.id, c]),
+);
+
+// ---------------------------------------------------------------------------
 // Sales reps
 // ---------------------------------------------------------------------------
 
@@ -159,6 +255,15 @@ const rawCompanies: RawCompany[] = [
 
 export type DigitalMaturity = "Low" | "Medium" | "High";
 
+export type CompetitorRelationStatus = "using" | "evaluating";
+
+export interface CompetitorPresence {
+  competitorId: string;
+  status: CompetitorRelationStatus;
+  /** How long the account has been using/evaluating this competitor, in months. */
+  months: number;
+}
+
 export interface Company extends RawCompany {
   missingModuleIds: ModuleId[];
   estimatedARR: number;
@@ -177,6 +282,8 @@ export interface Company extends RawCompany {
   renewalDate: string;
   dataQualityScore: number;
   lastContactDate: string;
+  /** null = no known competitor involvement — a pure TermoFlow opportunity. */
+  competitorPresence: CompetitorPresence | null;
 }
 
 /** Rough share of employees who work as field techs (drives per-user pricing). */
@@ -274,6 +381,19 @@ interface DemoProfile {
   renewalDate: string;
   dataQualityScore: number;
   lastContactDate: string;
+  competitorPresence: CompetitorPresence | null;
+}
+
+/** ~40% of accounts have no known competitor involvement — a pure opportunity. */
+function pickCompetitorPresence(
+  rng: () => number,
+  nextInt: (min: number, max: number) => number,
+): CompetitorPresence | null {
+  if (rng() < 0.4) return null;
+  const competitor = competitors[nextInt(0, competitors.length - 1)];
+  const status: CompetitorRelationStatus = rng() < 0.65 ? "using" : "evaluating";
+  const months = status === "using" ? nextInt(3, 36) : nextInt(1, 4);
+  return { competitorId: competitor.id, status, months };
 }
 
 function computeDemoProfile(raw: RawCompany, index: number): DemoProfile {
@@ -309,6 +429,7 @@ function computeDemoProfile(raw: RawCompany, index: number): DemoProfile {
   const renewalDate = addDaysISO(TODAY_ISO, nextInt(30, 420));
   const dataQualityScore = nextInt(20, 100);
   const lastContactDate = addDaysISO(TODAY_ISO, -nextInt(1, 180));
+  const competitorPresence = pickCompetitorPresence(rng, nextInt);
   const { score: healthScore } = computeHealthScore({
     isoCertified,
     digitalMaturity,
@@ -333,6 +454,7 @@ function computeDemoProfile(raw: RawCompany, index: number): DemoProfile {
     renewalDate,
     dataQualityScore,
     lastContactDate,
+    competitorPresence,
   };
 }
 
